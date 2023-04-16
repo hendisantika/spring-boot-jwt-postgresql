@@ -1,5 +1,8 @@
 package com.hendisantika.springbootjwtpostgresql.config;
 
+import com.hendisantika.springbootjwtpostgresql.jwt.AuthEntryPointJwt;
+import com.hendisantika.springbootjwtpostgresql.jwt.AuthTokenFilter;
+import com.hendisantika.springbootjwtpostgresql.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
