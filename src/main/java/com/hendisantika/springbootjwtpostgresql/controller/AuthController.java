@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -147,7 +146,7 @@ public class AuthController {
                     , content = @Content)
     }
     )
-    public ResponseEntity<?> getName(@Parameter @RequestHeader(name = "authorization") String authorization) throws JSONException {
+    public ResponseEntity<?> getName(@Parameter @RequestHeader(name = "authorization") String authorization) {
         AuthToken token = new AuthToken(authorization);
 
         boolean isJWTExpired = jwtUtils.isJWTExpired(token.getDecodedJWT());
@@ -182,7 +181,7 @@ public class AuthController {
                     , content = @Content)
     }
     )
-    public ResponseEntity<?> updateName(@Parameter @RequestHeader(name = "authorization") String authorization, @RequestParam String name) throws JSONException {
+    public ResponseEntity<?> updateName(@Parameter @RequestHeader(name = "authorization") String authorization, @RequestParam String name) {
         AuthToken token = new AuthToken(authorization);
 
         boolean isJWTExpired = jwtUtils.isJWTExpired(token.getDecodedJWT());
