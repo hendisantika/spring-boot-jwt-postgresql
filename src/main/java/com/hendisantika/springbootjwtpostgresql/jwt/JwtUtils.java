@@ -51,9 +51,9 @@ public class JwtUtils {
     @Autowired
     private UserRepository userRepository;
 
-    RSAPublicKey rsaPublicKey;
+    private RSAPublicKey rsaPublicKey;
 
-    RSAPrivateKey rsaPrivateKey;
+    private RSAPrivateKey rsaPrivateKey;
 
     public JwtUtils() throws Exception {
         Resource publicKeyResource = new ClassPathResource("public.txt");
