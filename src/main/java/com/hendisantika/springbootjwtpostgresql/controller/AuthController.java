@@ -9,6 +9,12 @@ import com.hendisantika.springbootjwtpostgresql.payload.response.JwtResponse;
 import com.hendisantika.springbootjwtpostgresql.payload.response.MessageResponse;
 import com.hendisantika.springbootjwtpostgresql.repository.UserRepository;
 import com.hendisantika.springbootjwtpostgresql.service.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -36,6 +42,7 @@ import java.util.Optional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@Tag(name = "User", description = "Endpoints for managing user")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
 
@@ -46,6 +53,27 @@ public class AuthController {
     private final JwtUtils jwtUtils;
 
     @PostMapping("/signin")
+    @Operation(
+            summary = "User Login",
+            description = "User Login.",
+            tags = {"User"})
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    description = "Success",
+                    responseCode = "200",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation =
+                            User.class))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Bad Request", responseCode = "400",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not Authorize", responseCode = "403",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not found", responseCode = "404",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Internal error", responseCode = "500"
+                    , content = @Content)
+    }
+    )
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getPhoneNumber(), loginRequest.getPassword()));
@@ -61,6 +89,27 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
+    @Operation(
+            summary = "Sign Up new User",
+            description = "Sign Up new User.",
+            tags = {"User"})
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    description = "Success",
+                    responseCode = "200",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation =
+                            User.class))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Bad Request", responseCode = "400",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not Authorize", responseCode = "403",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not found", responseCode = "404",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Internal error", responseCode = "500"
+                    , content = @Content)
+    }
+    )
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByPhoneNumber(signUpRequest.getPhoneNumber())) {
             return ResponseEntity
@@ -77,7 +126,28 @@ public class AuthController {
     }
 
     @GetMapping("/name")
-    public ResponseEntity<?> getName(@RequestHeader(name = "authorization") String authorization) throws JSONException {
+    @Operation(
+            summary = "Get name from User",
+            description = "Get name from User.",
+            tags = {"User"})
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    description = "Success",
+                    responseCode = "200",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation =
+                            User.class))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Bad Request", responseCode = "400",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not Authorize", responseCode = "403",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not found", responseCode = "404",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Internal error", responseCode = "500"
+                    , content = @Content)
+    }
+    )
+    public ResponseEntity<?> getName(@Parameter @RequestHeader(name = "authorization") String authorization) throws JSONException {
         AuthToken token = new AuthToken(authorization);
 
         boolean isJWTExpired = jwtUtils.isJWTExpired(token.getDecodedJWT());
@@ -91,7 +161,28 @@ public class AuthController {
     }
 
     @GetMapping("/update")
-    public ResponseEntity<?> updateName(@RequestHeader(name = "authorization") String authorization, @RequestParam String name) throws JSONException {
+    @Operation(
+            summary = "Update name of User",
+            description = "Update name of User.",
+            tags = {"User"})
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    description = "Success",
+                    responseCode = "200",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation =
+                            User.class))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Bad Request", responseCode = "400",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not Authorize", responseCode = "403",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Not found", responseCode = "404",
+                    content = @Content),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Internal error", responseCode = "500"
+                    , content = @Content)
+    }
+    )
+    public ResponseEntity<?> updateName(@Parameter @RequestHeader(name = "authorization") String authorization, @RequestParam String name) throws JSONException {
         AuthToken token = new AuthToken(authorization);
 
         boolean isJWTExpired = jwtUtils.isJWTExpired(token.getDecodedJWT());
