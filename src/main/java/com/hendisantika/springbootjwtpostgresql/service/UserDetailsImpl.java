@@ -2,14 +2,12 @@ package com.hendisantika.springbootjwtpostgresql.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hendisantika.springbootjwtpostgresql.model.User;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,63 +19,39 @@ import java.util.stream.Collectors;
  * Time: 09:44
  * To change this template use File | Settings | File Templates.
  */
+@Getter
+@Setter
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     private final Long id;
 
-    private final String username;
-
-    private final String email;
+    private final String phoneNumber;
 
     @JsonIgnore
     private final String password;
 
-    private final Collection<? extends GrantedAuthority> authorities;
-
-    public UserDetailsImpl(Long id, String username, String email, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(Long id, String phoneNumber, String password) {
         this.id = id;
-        this.username = username;
-        this.email = email;
+        this.phoneNumber = phoneNumber;
         this.password = password;
-        this.authorities = authorities;
     }
 
     public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
-
         return new UserDetailsImpl(
                 user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getPassword(),
-                authorities);
+                user.getPhoneNumber(),
+                user.getPassword());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return null;
     }
 
     @Override
@@ -99,15 +73,4 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        UserDetailsImpl user = (UserDetailsImpl) o;
-        return Objects.equals(id, user.id);
-    }
-
 }
