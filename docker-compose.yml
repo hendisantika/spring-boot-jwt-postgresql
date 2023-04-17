@@ -1,0 +1,37 @@
+version: '3.9'
+networks:
+  backend:
+    name: app
+    driver: bridge
+services:
+  app:
+    image: 'hendisantika/jwt:v1'
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    depends_on:
+      PostgreSQL:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://PostgreSQL:5432/users
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=hendi34
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_PROFILES_ACTIVE=docker
+
+  PostgreSQL:
+    image: postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - backend
+    environment:
+      - POSTGRES_PASSWORD=hendi34
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=users
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
