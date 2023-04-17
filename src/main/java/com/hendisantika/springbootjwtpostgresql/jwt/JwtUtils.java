@@ -11,16 +11,20 @@ import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.*;
 
@@ -44,16 +48,33 @@ public class JwtUtils {
     @Value("${hendi.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    private final KeyPairGenerator keyPairGenerator;
-    private final KeyPair keyPair;
-
     @Autowired
     private UserRepository userRepository;
 
-    public JwtUtils() throws NoSuchAlgorithmException {
-        keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
-        keyPair = keyPairGenerator.generateKeyPair();
+    private RSAPublicKey rsaPublicKey;
+
+    private RSAPrivateKey rsaPrivateKey;
+
+    public JwtUtils() throws Exception {
+        Resource publicKeyResource = new ClassPathResource("public.txt");
+        byte[] publicKey = Base64.getDecoder().decode(
+                publicKeyResource.getContentAsString(StandardCharsets.UTF_8)
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replaceAll("\\R", "")
+        );
+
+        Resource privateKeyResource = new ClassPathResource("private.txt");
+        byte[] privateKey = Base64.getDecoder().decode(
+                privateKeyResource.getContentAsString(StandardCharsets.UTF_8)
+                        .replace("-----BEGIN PRIVATE KEY-----", "")
+                        .replace("-----END PRIVATE KEY-----", "")
+                        .replaceAll("\\R", "")
+        );
+
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        rsaPublicKey =  (RSAPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(publicKey));
+        rsaPrivateKey = (RSAPrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKey));
     }
 
     public String generateJwt(Authentication authentication) throws Exception {
@@ -76,7 +97,7 @@ public class JwtUtils {
                 .withIssuedAt(Date.from(Instant.now()));
 
         claims.entrySet().forEach(action -> tokenBuilder.withClaim(action.getKey(), action.getValue()));
-        return tokenBuilder.sign(Algorithm.RSA256(((RSAPublicKey) keyPair.getPublic()), ((RSAPrivateKey) keyPair.getPrivate())));
+        return tokenBuilder.sign(Algorithm.RSA256(rsaPublicKey, rsaPrivateKey));
     }
 
     public String generateJwtToken(Authentication authentication) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -89,17 +110,18 @@ public class JwtUtils {
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
-    }
-
     public String getPhoneNumberFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+        String phoneNumber = Jwts.parser().setSigningKey(rsaPublicKey)
+                .parseClaimsJws(token)
+                .getBody().get("phoneNumber")
+                .toString();
+        log.info("===> phone number is {}", phoneNumber);
+        return phoneNumber;
     }
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
+            Jwts.parser().setSigningKey(rsaPublicKey).parseClaimsJws(authToken);
             return true;
         } catch (SignatureException e) {
             log.error("Invalid JWT signature: {}", e.getMessage());
