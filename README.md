@@ -15,3 +15,17 @@ Generate private key
 ```
 $ openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out private.txt
 ```
+
+Sample public key
+```
+-----BEGIN PUBLIC KEY-----
+MIIBIjA...xxxxxx....QAB
+-----END PUBLIC KEY-----
+```
+
+Sample private key
+```
+-----BEGIN PRIVATE KEY-----
+MII....xxxxx.....C/o/q6k
+-----END PRIVATE KEY-----
+```
