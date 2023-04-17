@@ -20,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 /**
  * Created by IntelliJ IDEA.
  * Project : spring-boot-jwt-postgresql
@@ -88,5 +90,20 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("Name: " + name));
     }
 
+    @GetMapping("/update")
+    public ResponseEntity<?> updateName(@RequestHeader(name = "authorization") String authorization, @RequestParam String name) throws JSONException {
+        AuthToken token = new AuthToken(authorization);
 
+        boolean isJWTExpired = jwtUtils.isJWTExpired(token.getDecodedJWT());
+        if (isJWTExpired) {
+            return ResponseEntity.ok(new MessageResponse("Token has been expired!"));
+        }
+
+        String phoneNumber = token.getPhoneNumber();
+        Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(phoneNumber);
+        User user = byPhoneNumber.get();
+        user.setName(name);
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("New Name has been updated successfully!"));
+    }
 }
