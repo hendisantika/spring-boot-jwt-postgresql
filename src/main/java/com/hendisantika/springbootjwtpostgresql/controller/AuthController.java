@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -144,8 +145,8 @@ public class AuthController {
                     content = @Content),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Internal error", responseCode = "500"
                     , content = @Content)
-    }
-    )
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<?> getName(@Parameter @RequestHeader(name = "authorization") String authorization) {
         AuthToken token = new AuthToken(authorization);
 
@@ -179,8 +180,8 @@ public class AuthController {
                     content = @Content),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(description = "Internal error", responseCode = "500"
                     , content = @Content)
-    }
-    )
+    })
+    @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<?> updateName(@Parameter @RequestHeader(name = "authorization") String authorization, @RequestParam String name) {
         AuthToken token = new AuthToken(authorization);
 
