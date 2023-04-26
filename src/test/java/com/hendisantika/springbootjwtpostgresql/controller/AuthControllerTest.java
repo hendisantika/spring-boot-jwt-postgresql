@@ -1,7 +1,10 @@
 package com.hendisantika.springbootjwtpostgresql.controller;
 
+import com.hendisantika.springbootjwtpostgresql.payload.response.JwtResponse;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.response.ResponseBody;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,7 +71,7 @@ public class AuthControllerTest {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     @DisplayName("Login with a right credentials")
     public void testSuccessLogin() {
         given()
@@ -83,6 +86,43 @@ public class AuthControllerTest {
                 .body("type", equalTo("Bearer"))
                 .body("token", is(notNullValue()))
                 .body("phoneNumber", equalTo("081655242331"));
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Login with a right credentials and accessing protected api")
+    public void testSuccessLogin_andSuccessAccessingProtectedAPI() {
+        ResponseBody body = given()
+                                .accept(ContentType.JSON)
+                                .contentType(ContentType.JSON)
+                                .body("{\"phoneNumber\":\"081655242331\", \"password\":\"Password1\"}")
+                                .post("/api/auth/signin")
+                                .getBody();
+        JwtResponse response = body.as(JwtResponse.class);
+
+        given()
+                .accept(ContentType.JSON)
+                .header(new Header("Authorization", "Bearer "+response.getToken()))
+                .log().all()
+                .when()
+                .get("/api/test/user")
+                .then()
+                .statusCode(200).log().all();
+    }
+
+
+    @Test
+    @Order(5)
+    @DisplayName("Login with a wrong credentials and accessing protected api")
+    public void testFailedLogin_andFailingAccessingProtectedAPI() {
+        given()
+                .accept(ContentType.JSON)
+                .header(new Header("Authorization", "Bearer "+"some-random-token"))
+                .log().all()
+                .when()
+                .get("/api/test/user")
+                .then()
+                .statusCode(401).log().all();
     }
 
 }

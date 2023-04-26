@@ -5,9 +5,12 @@ import com.hendisantika.springbootjwtpostgresql.model.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -31,22 +34,28 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private final String password;
 
-    public UserDetailsImpl(Long id, String phoneNumber, String password) {
+    private final String role;
+
+    public UserDetailsImpl(Long id, String phoneNumber, String password, String role) {
         this.id = id;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.role = role;
     }
 
     public static UserDetailsImpl build(User user) {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getPhoneNumber(),
-                user.getPassword());
+                user.getPassword(),
+                "USER");
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add(new SimpleGrantedAuthority("ROLE_" + role));
+        return list;
     }
 
     @Override
