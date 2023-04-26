@@ -125,4 +125,27 @@ public class AuthControllerTest {
                 .statusCode(401).log().all();
     }
 
+
+    @Test
+    @Order(6)
+    @DisplayName("Login with a right credentials but accessing unauthorized api")
+    public void testSuccessLogin_andFailedAccessingProtectedAPI() {
+        ResponseBody body = given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body("{\"phoneNumber\":\"081655242331\", \"password\":\"Password1\"}")
+                .post("/api/auth/signin")
+                .getBody();
+        JwtResponse response = body.as(JwtResponse.class);
+
+        given()
+                .accept(ContentType.JSON)
+                .header(new Header("Authorization", "Bearer "+response.getToken()))
+                .log().all()
+                .when()
+                .get("/api/test/admin")
+                .then()
+                .statusCode(401).log().all();
+    }
+
 }
