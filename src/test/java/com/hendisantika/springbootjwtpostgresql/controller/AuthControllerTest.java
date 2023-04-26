@@ -113,8 +113,8 @@ public class AuthControllerTest {
 
     @Test
     @Order(5)
-    @DisplayName("Login with a wrong credentials and accessing protected api")
-    public void testFailedLogin_andFailingAccessingProtectedAPI() {
+    @DisplayName("Accessing protected api without login")
+    public void testFailedAccessingProtectedAPI() {
         given()
                 .accept(ContentType.JSON)
                 .header(new Header("Authorization", "Bearer "+"some-random-token"))
