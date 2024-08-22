@@ -15,7 +15,7 @@
     <description>spring-boot-jwt-postgresql</description>
     <properties>
         <java.version>21</java.version>
-        <org.testcontainers.version>1.18.0</org.testcontainers.version>
+        <org.testcontainers.version>1.20.1</org.testcontainers.version>
         <io.rest-assured.version>5.5.0</io.rest-assured.version>
     </properties>
     <dependencies>
